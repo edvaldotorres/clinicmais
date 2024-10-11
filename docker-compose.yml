@@ -15,17 +15,17 @@ services:
     networks:
       - clinicmais-network
 
-  institucional:
-    container_name: institucional_clinicmais
+  institutional:
+    container_name: institutional_clinicmais
     build:
       context: .
-      dockerfile: docker/institucional/Dockerfile
+      dockerfile: docker/institutional/Dockerfile
       args:
         - uid=501
         - user=developer
     volumes:
-      - ./institucional:/var/www/html
-      - ./docker/institucional/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./institutional:/var/www/html
+      - ./docker/institutional/000-default.conf:/etc/apache2/sites-available/000-default.conf
     working_dir: /var/www/html
     ports:
       - 80:80
