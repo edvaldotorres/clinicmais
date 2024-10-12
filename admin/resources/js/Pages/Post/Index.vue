@@ -123,6 +123,10 @@ const deletePost = () => {
                                             </TableCell>
                                             <TableCell class="p-4 text-gray-700">{{ post.content }}</TableCell>
                                             <TableCell class="p-4 flex space-x-2">
+                                                <Link :href="route('posts.show', post.id)">
+                                                <Button variant="outline" class="text-green-600">Visualizar</Button>
+                                                </Link>
+
                                                 <Link :href="route('posts.edit', post.id)">
                                                 <Button variant="outline" class="text-blue-600">Editar</Button>
                                                 </Link>
