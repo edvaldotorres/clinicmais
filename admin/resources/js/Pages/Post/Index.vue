@@ -22,26 +22,59 @@ import {
     PaginationPrev,
 } from '@/shadcn/ui/pagination';
 
-import { ref } from 'vue'; // Para manipular o estado de paginação
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/shadcn/ui/alert-dialog';
+
+import { ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 // Acessando os dados enviados do backend (Inertia)
 const { posts } = usePage().props;
 
 // Acessando os posts e os dados de paginação
-const currentPage = ref(posts.current_page); // Página atual
-const totalPages = ref(posts.last_page); // Total de páginas
+const currentPage = ref(posts.current_page);
+const totalPages = ref(posts.last_page);
+
+// Estado para controlar qual post será deletado
+const postToDelete = ref(null);
 
 // Função para trocar de página
 const changePage = (page) => {
-    if (page < 1 || page > totalPages.value) return; // Verificar limites de página
+    if (page < 1 || page > totalPages.value) return;
     router.get(route('posts.index', { page }), {
-        preserveState: true, // Manter o estado da página
-        preserveScroll: true, // Manter a posição de rolagem
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+// Função para deletar um post e atualizar a listagem
+const deletePost = () => {
+    if (!postToDelete.value) return;
+
+    router.delete(route('posts.destroy', postToDelete.value), {
+        onSuccess: () => {
+            postToDelete.value = null;
+            // Atualiza a listagem após deletar o post, mantendo a página atual
+            router.get(route('posts.index', { page: currentPage.value }), {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        },
+        onError: () => {
+            postToDelete.value = null;
+        },
     });
 };
 </script>
-
 
 <template>
 
@@ -59,7 +92,6 @@ const changePage = (page) => {
                         <h2 class="text-lg font-medium text-gray-900">Informações de Post</h2>
                     </header>
 
-                    <!-- Botão de Cadastro -->
                     <div class="flex justify-end mb-8">
                         <Link :href="route('posts.create')">
                         <Button variant="default" class="px-6 py-3 text-lg">
@@ -68,7 +100,6 @@ const changePage = (page) => {
                         </Link>
                     </div>
 
-                    <!-- Tabela de posts -->
                     <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <div class="overflow-x-auto">
@@ -86,7 +117,6 @@ const changePage = (page) => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        <!-- Exibição dos posts dinamicamente -->
                                         <TableRow v-for="(post, index) in posts.data" :key="index"
                                             class="hover:bg-gray-50 transition-colors border-b last:border-none">
                                             <TableCell class="p-4 font-medium text-gray-900">{{ post.title }}
@@ -96,21 +126,38 @@ const changePage = (page) => {
                                                 <Link :href="route('posts.edit', post.id)">
                                                 <Button variant="outline" class="text-blue-600">Editar</Button>
                                                 </Link>
-                                                <Button variant="destructive"
-                                                    @click="deletePost(post.id)">Deletar</Button>
+
+                                                <!-- AlertDialog para confirmar exclusão -->
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger>
+                                                        <Button variant="destructive" @click="postToDelete = post.id">
+                                                            Deletar
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Esta ação não pode ser desfeita. Isso deletará
+                                                                permanentemente o post.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                            <AlertDialogAction @click="deletePost">Confirmar
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
 
-                                <!-- Componente de Paginação -->
                                 <Pagination v-slot="{ page }" :total="totalPages * 10" :sibling-count="1" show-edges
                                     :default-page="currentPage">
                                     <PaginationList v-slot="{ items }" class="flex items-center gap-1">
-                                        <!-- Ir para primeira página -->
                                         <PaginationFirst @click="changePage(1)" />
-
-                                        <!-- Ir para página anterior -->
                                         <PaginationPrev @click="changePage(currentPage - 1)" />
 
                                         <template v-for="(item, index) in items" :key="index">
@@ -125,10 +172,7 @@ const changePage = (page) => {
                                             <PaginationEllipsis v-else :key="item.type" :index="index" />
                                         </template>
 
-                                        <!-- Ir para próxima página -->
                                         <PaginationNext @click="changePage(currentPage + 1)" />
-
-                                        <!-- Ir para última página -->
                                         <PaginationLast @click="changePage(totalPages)" />
                                     </PaginationList>
                                 </Pagination>
