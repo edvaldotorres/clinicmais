@@ -29,15 +29,26 @@ class PostController extends Controller
      */
     public function create()
     {
-        dd('create');
+        return Inertia::render('Post/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        //
+        $validatedData = $request->validated();  // Valida os dados
+
+        $post = new Post();  // Cria uma nova instância de Post
+
+        // Lida com o upload da imagem e popula $validatedData com o nome do arquivo
+        $this->handleImageUpload($request, $post, $validatedData);
+
+        // Cria o post com os dados validados (incluindo a imagem, se enviada)
+        $post->create($validatedData);
+
+        // Redireciona para a lista de posts após a criação
+        return redirect()->route('posts.index');
     }
 
     /**
