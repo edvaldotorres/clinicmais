@@ -17,4 +17,12 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: '0.0.0.0', // Permite que o Vite seja acessível externamente no Docker
+        port: 5173, // Porta do Vite
+        hmr: {
+            host: 'localhost', // Configura o HMR para funcionar com localhost
+            protocol: 'ws', // Utiliza WebSockets para o HMR
+        },
+    },
 });
