@@ -1,9 +1,10 @@
 <?php
 $title_page = "Blog | ";
 
-// Inclui a conexão com o banco e a classe Post
+// Inclui a conexão com o banco e as classes Post e Comment
 include_once dirname(__FILE__) . '/../../config/db.php';
 include_once dirname(__FILE__) . '/../../models/Post.php';
+include_once dirname(__FILE__) . '/../../models/Comment.php';
 
 // Instancia a conexão com o banco de dados
 $database = new Database();
@@ -32,10 +33,40 @@ $titulo = $postDetails['title'];
 $conteudo = $postDetails['content'];
 $imagem = $postDetails['image'];
 $imagemUrl = "http://localhost:8000/storage/images/" . $imagem;
-$data = date('d M Y', strtotime($postDetails['created_at']));
+// Verificação para evitar erro com strtotime
+$data = isset($postDetails['created_at']) ? date('d M Y', strtotime($postDetails['created_at'])) : 'Data não disponível';
+$post_id = $postDetails['id'];
 
+// Instancia a classe Comment
+$comment = new Comment($db);
+
+// Lógica para inserção de comentários
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	// Obtém os dados do formulário
+	$author = isset($_POST['author']) ? $_POST['author'] : null;
+	$content = isset($_POST['content']) ? $_POST['content'] : null;
+
+	// Verifica se os dados foram enviados
+	if ($author && $content) {
+		// Atribui os valores aos atributos do comentário
+		$comment->post_id = $post_id;
+		$comment->author = $author;
+		$comment->content = $content;
+
+		// Insere o comentário no banco de dados
+		if ($comment->create()) {
+			$success_message = "Comentário adicionado com sucesso!";
+		} else {
+			$error_message = "Erro ao adicionar o comentário.";
+		}
+	} else {
+		$error_message = "Por favor, preencha todos os campos.";
+	}
+}
+
+// Buscar todos os comentários para este post
+$comments = $comment->getCommentsByPostId($post_id);
 ?>
-
 
 <main class="main mb-0" data-animate="top" data-delay="3">
 	<aside class="banner_topo bnr-blog"></aside>
@@ -52,11 +83,9 @@ $data = date('d M Y', strtotime($postDetails['created_at']));
 		</div>
 	</header>
 
-	<section class=" mb-4">
+	<section class="mb-4">
 		<div class="container">
-
 			<div class="row">
-
 				<article class="col-12">
 					<div class="cabecalho mb-4 pb-2">
 						<h2 class="topic5"><?php echo $titulo; ?></h2>
@@ -78,63 +107,65 @@ $data = date('d M Y', strtotime($postDetails['created_at']));
 					</p>
 				</article>
 
+				<!-- Exibir mensagens de sucesso ou erro -->
+				<?php if (isset($success_message)) : ?>
+					<div class="alert alert-success">
+						<?php echo $success_message; ?>
+					</div>
+				<?php elseif (isset($error_message)) : ?>
+					<div class="alert alert-danger">
+						<?php echo $error_message; ?>
+					</div>
+				<?php endif; ?>
 
+				<!-- Exibir comentários -->
 				<div class="col-md-12 mt-4 col-lg-10 col-xl-8">
 					<h5 class="topic5">Comentários</h5>
-					<div class="comentario mb-3">
-						<div class="d-block">
-							<h6 class="fw-bold text-primary mb-1">Pedro Paulo</h6>
-							<p class="text-muted small mb-0">
-								Shared publicly - Jan 2020
-							</p>
-						</div>
 
-						<p class="mt-3 mb-4 pb-2">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac arcu a lacus posuere facilisis nec a sapien. Proin mattis, diam id pharetra vulputate, lectus sapien tristique justo, nec vehicula enim turpis sit amet sapien. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque a nunc erat. Cras ut dui ut mi scelerisque cursus.
-						</p>
-					</div>
+					<?php if ($comments) : ?>
+						<?php foreach ($comments as $comment) : ?>
+							<div class="comentario mb-3">
+								<div class="d-block">
+									<h6 class="fw-bold text-primary mb-1"><?php echo htmlspecialchars($comment['author']); ?></h6>
+									<p class="text-muted small mb-0">
+										Shared publicly - <?php echo date('d M Y', strtotime($comment['created_at'])); ?>
+									</p>
+								</div>
+								<p class="mt-3 mb-4 pb-2">
+									<?php echo htmlspecialchars($comment['content']); ?>
+								</p>
+							</div>
+						<?php endforeach; ?>
+					<?php else : ?>
+						<p>Não há comentários ainda. Seja o primeiro a comentar!</p>
+					<?php endif; ?>
+				</div>
 
-					<div class="comentario mb-3">
-						<div class="d-block">
-							<h6 class="fw-bold text-primary mb-1">José Carol</h6>
-							<p class="text-muted small mb-0">
-								Shared publicly - Jan 2020
-							</p>
-						</div>
-
-						<p class="mt-3 mb-4 pb-2">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac arcu a lacus posuere facilisis nec a sapien. Proin mattis, diam id pharetra vulputate, lectus sapien tristique justo, nec vehicula enim turpis sit amet sapien. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque a nunc erat. Cras ut dui ut mi scelerisque cursus.
-						</p>
-					</div>
-
-
-					<form class=" py-3 border-0">
-						<h5 class="topic5">Deixe um comentário</h5>
-						<div class="row ">
+				<!-- Formulário para comentar -->
+				<div class="col-md-12 mt-4 col-lg-10 col-xl-8">
+					<h5 class="topic5">Deixe um comentário</h5>
+					<form method="POST" class="py-3 border-0">
+						<div class="row">
 							<div class="col-md-12">
 								<div class="form-group">
-									<input class="form-control" type="text" name="" placeholder="Nome" style="border: 1px solid #98a8b1;">
+									<input class="form-control" type="text" name="author" placeholder="Nome" required style="border: 1px solid #98a8b1;">
 								</div>
 							</div>
 							<div class="col-md-12">
 								<div class="form-group">
-									<textarea class="form-control" id="" placeholder="Mensagem" rows="4" style="border: 1px solid #98a8b1;"></textarea>
+									<textarea class="form-control" name="content" placeholder="Mensagem" rows="4" required style="border: 1px solid #98a8b1;"></textarea>
 								</div>
 							</div>
 							<div class="col-md-12">
 								<div class="float-right pt-1">
-									<button type="button" class="btn btn-primary btn-sm" data-mdb-button-initialized="true">PUBLICAR</button>
+									<button type="submit" class="btn btn-primary btn-sm">PUBLICAR</button>
 								</div>
 							</div>
 						</div>
 					</form>
-
 				</div>
 			</div>
-
-		</div><!-- row -->
-
-		</div> <!-- container -->
+		</div>
 	</section>
 
 	<aside>
@@ -148,9 +179,4 @@ $data = date('d M Y', strtotime($postDetails['created_at']));
 	</aside>
 </main>
 
-
-<?php
-
-include dirname(__FILE__) . '/../includes/footer.php';
-
-?>
+<?php include dirname(__FILE__) . '/../includes/footer.php'; ?>
