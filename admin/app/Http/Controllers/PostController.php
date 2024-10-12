@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Traits\UploadFile;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -38,6 +39,8 @@ class PostController extends Controller
     public function store(PostRequest $request)
     {
         $validatedData = $request->validated();  // Valida os dados
+
+        $validatedData['slug'] = Str::slug($validatedData['title']);
 
         $post = new Post();  // Cria uma nova instância de Post
 
@@ -75,6 +78,8 @@ class PostController extends Controller
     public function update(PostRequest $request, Post $post)
     {
         $validatedData = $request->validated();
+
+        $validatedData['slug'] = Str::slug($validatedData['title']);
 
         $this->handleImageUpload($request, $post, $validatedData);
         $post->update($validatedData);

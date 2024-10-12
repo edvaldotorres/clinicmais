@@ -97,8 +97,9 @@ RewriteRule ^area-cliente/?$ pages/area-cliente/area-cliente.php [NC,L]
 RewriteRule ^convenios/?$ pages/convenios/convenios.php [NC,L]
 
 RewriteRule ^blog/?$ pages/blog/blog.php [NC,L]
-RewriteRule ^blog/([a-zA-Z0-9_-]+)/?$ pages/blog/blog-detalhe.php?id=$1 [NC,L]
+# RewriteRule ^blog/([a-zA-Z0-9_-]+)/?$ pages/blog/blog-detalhe.php?id=$1 [NC,L]
 RewriteRule ^blog/page/([0-9_-]+)/?$ pages/blog/blog.php?pagina=$1 [NC]
+RewriteRule ^blog/([a-zA-Z0-9_-]+)/?$ pages/blog/blog-detalhe.php?slug=$1 [NC,L]
 
 RewriteRule ^noticias/?$ pages/noticias/noticias.php [NC,L]
 RewriteRule ^noticia/([a-zA-Z0-9_-]+)/?$ pages/noticias/noticias-detalhe.php?id=$1 [NC,L]

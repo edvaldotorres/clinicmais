@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PostRequest extends FormRequest
 {
@@ -14,7 +15,12 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('posts')->ignore($this->post)
+            ],
             'content' => ['required', 'string'],
             'image' => [
                 'nullable',  // Torna o campo opcional em ambos os casos (criação e edição)

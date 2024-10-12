@@ -59,4 +59,17 @@ class Post
 
         return $row['total'];
     }
+
+    public function getPostBySlug($slug)
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE slug = :slug LIMIT 1";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+
+        $stmt->execute();
+
+        // Retorna o post como um array associativo
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

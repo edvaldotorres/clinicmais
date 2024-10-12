@@ -70,12 +70,12 @@ $total_pages = ceil($total_posts / $limit);
 					$conteudo = $row['content'];
 					$imagem = $row['image'];
 					$imagemUrl = "http://localhost:8000/storage/images/" . $imagem;
+					$slug = $row['slug'];
 				?>
 
 					<div class="col-lg-4 mb-5">
 						<div class="blog_content box-shadow mb-3">
-							<a href="blog/detalhe" class="zoom_image mb-3">
-								<!-- Define o tamanho fixo para a imagem -->
+							<a href="blog/<?php echo $slug; ?>" class="zoom_image mb-3"> <!-- Ajusta o link para usar o slug -->
 								<img src="<?php echo $imagemUrl; ?>" alt="<?php echo $titulo; ?>" style="width: 100%; height: 250px; object-fit: cover;" />
 							</a>
 
@@ -85,7 +85,7 @@ $total_pages = ceil($total_posts / $limit);
 								<p><?php echo substr($conteudo, 0, 150); ?>...</p>
 							</div>
 						</div>
-						<a href="blog/detalhe" class="leia">Saiba mais</a>
+						<a href="blog/<?php echo $slug; ?>" class="leia">Saiba mais</a> <!-- Ajusta o link para usar o slug -->
 					</div><!-- col-lg-4 -->
 
 				<?php } ?>
