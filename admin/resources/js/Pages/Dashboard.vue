@@ -1,9 +1,14 @@
 <script setup>
+import { ref } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+
+// Pega os dados passados pelo controlador no backend
+const { totalPosts, totalComments, totalUsers } = usePage().props;
 </script>
 
 <template>
+
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
@@ -13,8 +18,24 @@ import { Head } from '@inertiajs/vue3';
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">You're logged in!</div>
+                <div class="grid gap-4 md:grid-cols-3">
+                    <!-- Total de Posts -->
+                    <div class="bg-white shadow-sm rounded-lg p-6">
+                        <h3 class="text-lg font-bold">Total de Posts</h3>
+                        <p class="text-2xl">{{ totalPosts }}</p>
+                    </div>
+
+                    <!-- Total de Comentários -->
+                    <div class="bg-white shadow-sm rounded-lg p-6">
+                        <h3 class="text-lg font-bold">Total de Comentários</h3>
+                        <p class="text-2xl">{{ totalComments }}</p>
+                    </div>
+
+                    <!-- Total de Usuários -->
+                    <div class="bg-white shadow-sm rounded-lg p-6">
+                        <h3 class="text-lg font-bold">Total de Usuários</h3>
+                        <p class="text-2xl">{{ totalUsers }}</p>
+                    </div>
                 </div>
             </div>
         </div>
