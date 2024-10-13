@@ -53,14 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$comment->author = $author;
 		$comment->content = $content;
 
-		// Insere o comentário no banco de dados
-		if ($comment->create()) {
-			$success_message = "Comentário adicionado com sucesso!";
-		} else {
-			$error_message = "Erro ao adicionar o comentário.";
-		}
-	} else {
-		$error_message = "Por favor, preencha todos os campos.";
+		$comment->create();
 	}
 }
 
@@ -107,19 +100,17 @@ $comments = $comment->getCommentsByPostId($post_id);
 					</p>
 				</article>
 
-				<!-- Exibir mensagens de sucesso ou erro -->
-				<?php if (isset($success_message)) : ?>
-					<div class="alert alert-success">
-						<?php echo $success_message; ?>
-					</div>
-				<?php elseif (isset($error_message)) : ?>
-					<div class="alert alert-danger">
-						<?php echo $error_message; ?>
-					</div>
-				<?php endif; ?>
-
-				<!-- Exibir comentários -->
 				<div class="col-md-12 mt-4 col-lg-10 col-xl-8">
+					<?php if (isset($success_message)) : ?>
+						<div class="alert alert-success mb-4">
+							<?php echo $success_message; ?>
+						</div>
+					<?php elseif (isset($error_message)) : ?>
+						<div class="alert alert-danger mb-4">
+							<?php echo $error_message; ?>
+						</div>
+					<?php endif; ?>
+
 					<h5 class="topic5">Comentários</h5>
 
 					<?php if ($comments) : ?>
@@ -141,7 +132,6 @@ $comments = $comment->getCommentsByPostId($post_id);
 					<?php endif; ?>
 				</div>
 
-				<!-- Formulário para comentar -->
 				<div class="col-md-12 mt-4 col-lg-10 col-xl-8">
 					<h5 class="topic5">Deixe um comentário</h5>
 					<form method="POST" class="py-3 border-0">
@@ -169,14 +159,15 @@ $comments = $comment->getCommentsByPostId($post_id);
 	</section>
 
 	<aside>
-		<?php
-		$banner = rand(1, 6);
-		?>
+		<?php $banner = rand(1, 6); ?>
 		<a href="<?= $config['whatsapp']; ?>" target="_blank">
 			<img src="assets/img/banner/0<?= $banner; ?>.png" class="d-none d-md-block w-100">
 			<img src="assets/img/banner/mobile0<?= $banner; ?>.jpg" class="d-block d-md-none w-100">
 		</a>
 	</aside>
 </main>
+
+<?php include dirname(__FILE__) . '/../includes/footer.php'; ?>
+
 
 <?php include dirname(__FILE__) . '/../includes/footer.php'; ?>
