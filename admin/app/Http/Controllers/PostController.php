@@ -6,7 +6,9 @@ use App\Http\Requests\PostRequest;
 use App\Models\Post;
 use App\Traits\UploadFile;
 use Illuminate\Http\Request;
+use Inertia\Response;
 use Inertia\Inertia;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -16,19 +18,17 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        $posts = Post::paginate(10);
-
         return Inertia::render('Post/Index', [
-            'posts' => $posts
+            'posts' => Post::orderBy('created_at', 'desc')->paginate(10)
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('Post/Create');
     }
@@ -36,40 +36,27 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request)
+    public function store(PostRequest $request): RedirectResponse
     {
-        $validatedData = $request->validated();  // Valida os dados
+        $this->savePostData($request, new Post());
 
-        $validatedData['slug'] = Str::slug($validatedData['title']);
-
-        $post = new Post();  // Cria uma nova instância de Post
-
-        // Lida com o upload da imagem e popula $validatedData com o nome do arquivo
-        $this->handleImageUpload($request, $post, $validatedData);
-
-        // Cria o post com os dados validados (incluindo a imagem, se enviada)
-        $post->create($validatedData);
-
-        // Redireciona para a lista de posts após a criação
         return redirect()->route('posts.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Post $post): Response
     {
-        $post->load('comments');
-
         return Inertia::render('Post/Show', [
-            'post' => $post,
+            'post' => $post->load('comments')
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit(Post $post): Response
     {
         return Inertia::render('Post/Update', [
             'post' => $post,
@@ -79,14 +66,9 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, Post $post)
+    public function update(PostRequest $request, Post $post): RedirectResponse
     {
-        $validatedData = $request->validated();
-
-        $validatedData['slug'] = Str::slug($validatedData['title']);
-
-        $this->handleImageUpload($request, $post, $validatedData);
-        $post->update($validatedData);
+        $this->savePostData($request, $post);
 
         return redirect()->route('posts.index');
     }
@@ -94,36 +76,42 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(Post $post): RedirectResponse
     {
         $post->delete();
         return redirect()->route('posts.index');
     }
 
     /**
-     * The function `handleImageUpload` processes image uploads for a post, handling
-     * deletion of existing images and updating the validated data accordingly.
-     * 
-     * @param Request request  is an instance of the Request class, which
-     * contains the data and information about the current HTTP request. It is
-     * typically used to retrieve input data, files, cookies, and more from the
-     * request. In this context, it is being used to handle image uploads for a post.
-     * @param Post post The `handleImageUpload` function takes three parameters:
-     * ``, ``, and ``.
-     * @param validatedData The `validatedData` parameter in the `handleImageUpload`
-     * function is a reference to an array that contains data validated from a request.
-     * This function handles the image upload logic for a post, and it checks if there
-     * is a file named 'image' in the request. If there is, it
+     * Handles saving or updating a Post model.
      */
-    private function handleImageUpload(Request $request, Post $post, &$validatedData): void
+    private function savePostData(PostRequest $request, Post $post): Post
+    {
+        $validatedData = $request->validated();
+        $validatedData['slug'] = Str::slug($validatedData['title']);
+
+        $this->handleImageUpload($request, $post, $validatedData);
+
+        if ($post->exists) {
+            $post->update($validatedData);
+        } else {
+            $post->create($validatedData);
+        }
+
+        return $post;
+    }
+
+    /**
+     * Handles image uploads and updates the validated data with the image path.
+     */
+    private function handleImageUpload(Request $request, Post $post, array &$validatedData): void
     {
         if ($request->hasFile('image')) {
             if ($post->image) {
                 $this->uploadDeleteImage($post->image);
             }
 
-            $imageName = $this->uploadImage($request->image, 'images');
-            $validatedData['image'] = $imageName;
+            $validatedData['image'] = $this->uploadImage($request->image, 'images');
         } else {
             unset($validatedData['image']);
         }
