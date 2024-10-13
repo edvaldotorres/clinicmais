@@ -23,10 +23,10 @@ class PostRequest extends FormRequest
             ],
             'content' => ['required', 'string'],
             'image' => [
-                'nullable',  // Torna o campo opcional em ambos os casos (criação e edição)
-                'image',     // Verifica se é uma imagem
-                'max:1024',  // Limita o tamanho máximo a 1024 KB
-                'mimes:jpeg,png',  // Aceita apenas arquivos JPEG ou PNG
+                'nullable',
+                'image',
+                'max:1024',
+                'mimes:jpeg,png',
             ],
         ];
     }
