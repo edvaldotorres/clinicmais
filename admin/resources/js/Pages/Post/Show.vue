@@ -6,45 +6,40 @@ import { ref } from 'vue';
 
 const { post } = usePage().props;
 
-// Pré-visualização da imagem
 const imagePreview = ref(post.image ? `/storage/images/${post.image}` : null);
 
-// Variável reativa para controlar se os comentários estão visíveis ou não
-const showComments = ref(true); // Inicialmente, exibe os comentários
+const showComments = ref(true);
 </script>
 
 <template>
 
-    <Head title="View Post" />
+    <Head title="Visualizar Post" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">View Post</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Visualizar Post</h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <section>
-                        <!-- Avatar e visualização da imagem -->
                         <div class="mb-6 flex flex-col items-center space-y-4">
                             <Avatar class="w-64 h-64 rounded-lg">
-                                <AvatarImage v-if="imagePreview" :src="imagePreview" alt="Post Image" />
+                                <AvatarImage v-if="imagePreview" :src="imagePreview" alt="Imagem do Post" />
                                 <AvatarFallback v-else>NP</AvatarFallback>
                             </Avatar>
                             <div class="text-center">
-                                <h3 class="text-lg font-semibold">Post Image</h3>
-                                <p class="text-gray-600">A imagem representativa deste post</p>
+                                <h3 class="text-lg font-semibold">Imagem do Post</h3>
+                                <p class="text-gray-600">Imagem representativa deste post</p>
                             </div>
                         </div>
 
-                        <!-- Exibir título e conteúdo do post -->
                         <div class="mt-6">
                             <h1 class="text-2xl font-semibold mb-4">{{ post.title }}</h1>
                             <p class="text-gray-700">{{ post.content }}</p>
                         </div>
 
-                        <!-- Seção de comentários -->
                         <section v-if="showComments" class="mt-10">
                             <h3 class="text-lg font-semibold">Comentários</h3>
                             <ul v-if="post.comments.length">

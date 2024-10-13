@@ -1,6 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
 import {
     Table,
     TableBody,
@@ -34,20 +37,11 @@ import {
     AlertDialogTrigger,
 } from '@/shadcn/ui/alert-dialog';
 
-import { ref } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-
-// Acessando os dados enviados do backend (Inertia)
 const { posts } = usePage().props;
-
-// Acessando os posts e os dados de paginação
 const currentPage = ref(posts.current_page);
 const totalPages = ref(posts.last_page);
-
-// Estado para controlar qual post será deletado
 const postToDelete = ref(null);
 
-// Função para trocar de página
 const changePage = (page) => {
     if (page < 1 || page > totalPages.value) return;
     router.get(route('posts.index', { page }), {
@@ -56,14 +50,11 @@ const changePage = (page) => {
     });
 };
 
-// Função para deletar um post e atualizar a listagem
 const deletePost = () => {
     if (!postToDelete.value) return;
-
     router.delete(route('posts.destroy', postToDelete.value), {
         onSuccess: () => {
             postToDelete.value = null;
-            // Atualiza a listagem após deletar o post, mantendo a página atual
             router.get(route('posts.index', { page: currentPage.value }), {
                 preserveState: true,
                 preserveScroll: true,
@@ -88,15 +79,10 @@ const deletePost = () => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <header>
-                        <h2 class="text-lg font-medium text-gray-900">Informações de Post</h2>
-                    </header>
-
-                    <div class="flex justify-end mb-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-lg font-medium text-gray-900">Listagem de Post</h2>
                         <Link :href="route('posts.create')">
-                        <Button variant="default" class="px-6 py-3 text-lg">
-                            Criar Novo Post
-                        </Button>
+                        <Button variant="default" class="px-6 py-3 text-lg">Criar Novo Post</Button>
                         </Link>
                     </div>
 
@@ -131,19 +117,17 @@ const deletePost = () => {
                                                 <Button variant="outline" class="text-blue-600">Editar</Button>
                                                 </Link>
 
-                                                <!-- AlertDialog para confirmar exclusão -->
                                                 <AlertDialog>
                                                     <AlertDialogTrigger>
-                                                        <Button variant="destructive" @click="postToDelete = post.id">
-                                                            Deletar
-                                                        </Button>
+                                                        <Button variant="destructive"
+                                                            @click="postToDelete = post.id">Deletar</Button>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                Esta ação não pode ser desfeita. Isso deletará
-                                                                permanentemente o post.
+                                                            <AlertDialogDescription>Esta ação não pode ser desfeita.
+                                                                Isso
+                                                                deletará permanentemente o post.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -180,7 +164,6 @@ const deletePost = () => {
                                         <PaginationLast @click="changePage(totalPages)" />
                                     </PaginationList>
                                 </Pagination>
-
                             </div>
                         </div>
                     </div>

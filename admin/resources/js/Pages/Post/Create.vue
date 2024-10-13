@@ -10,42 +10,36 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/shadcn/ui/avatar';
 import { Button } from '@/shadcn/ui/button';
 import { ref } from 'vue';
 
-// Inicializa o formulário vazio para criação
 const form = useForm({
     title: '',
     content: '',
     image: null,
 });
 
-// Exibe a pré-visualização da imagem, que começa como null
 const imagePreview = ref(null);
 
-// Função para lidar com a mudança da imagem
 const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
         form.image = file;
-        imagePreview.value = URL.createObjectURL(file);  // Atualiza o preview com a nova imagem
+        imagePreview.value = URL.createObjectURL(file);
     }
 };
 
-// Função para enviar o formulário
 const submit = () => {
     form.post(route('posts.store'), {
         preserveScroll: true,
-        forceFormData: true,  // Garante que os arquivos sejam enviados como FormData
+        forceFormData: true,
         onSuccess: handleSuccess,
         onError: handleError,
     });
 };
 
-// Manipula a ação de sucesso do envio do formulário
 const handleSuccess = () => {
     form.reset();
     imagePreview.value = null;
 };
 
-// Manipula erros após falha no envio do formulário
 const handleError = () => {
     if (form.errors.image) {
         form.reset('image');
@@ -55,11 +49,11 @@ const handleError = () => {
 
 <template>
 
-    <Head title="Create Post" />
+    <Head title="Criar Post" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Create Post</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Criar Post</h2>
         </template>
 
         <div class="py-12">
@@ -68,20 +62,19 @@ const handleError = () => {
                     <section>
                         <div class="mb-6 flex flex-col items-center space-y-4">
                             <Avatar class="w-64 h-64 rounded-lg">
-                                <!-- Exibe a imagem se houver uma pré-visualização -->
-                                <AvatarImage v-if="imagePreview" :src="imagePreview" alt="Post Image" />
+                                <AvatarImage v-if="imagePreview" :src="imagePreview" alt="Imagem do Post" />
                                 <AvatarFallback v-else>NP</AvatarFallback>
                             </Avatar>
                             <div class="text-center">
-                                <h3 class="text-lg font-semibold">Post Image</h3>
+                                <h3 class="text-lg font-semibold">Imagem do Post</h3>
                                 <p class="text-gray-600">A imagem representativa deste post</p>
                             </div>
                         </div>
 
                         <div>
-                            <InputLabel for="image" value="Upload New Image" />
+                            <InputLabel for="image" value="Enviar Nova Imagem" />
                             <Button class="bg-indigo-600 text-white hover:bg-indigo-700 mt-2">
-                                <label for="image" class="cursor-pointer">Select Image</label>
+                                <label for="image" class="cursor-pointer">Selecionar Imagem</label>
                                 <input type="file" id="image" class="hidden" @change="handleImageChange"
                                     accept="image/*" />
                             </Button>
@@ -90,24 +83,24 @@ const handleError = () => {
 
                         <form @submit.prevent="submit" class="mt-6 space-y-6" enctype="multipart/form-data">
                             <div>
-                                <InputLabel for="title" value="Title" />
+                                <InputLabel for="title" value="Título" />
                                 <TextInput id="title" type="text" class="mt-1 block w-full" v-model="form.title"
                                     required autofocus />
                                 <InputError class="mt-2" :message="form.errors.title" />
                             </div>
 
                             <div>
-                                <InputLabel for="content" value="Content" />
+                                <InputLabel for="content" value="Conteúdo" />
                                 <Textarea id="content" class="mt-1 block w-full" v-model="form.content" required
                                     rows="6" />
                                 <InputError class="mt-2" :message="form.errors.content" />
                             </div>
 
                             <div class="flex items-center gap-4">
-                                <PrimaryButton :disabled="form.processing">Create</PrimaryButton>
+                                <PrimaryButton :disabled="form.processing">Criar</PrimaryButton>
                                 <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
                                     leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
-                                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">Saved.</p>
+                                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">Salvo.</p>
                                 </Transition>
                             </div>
                         </form>
