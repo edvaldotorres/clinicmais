@@ -38,23 +38,33 @@ Obs: Isso pode demorar um pouco, pois o docker irá baixar as imagens necessári
 4- Instale as dependências do projeto
 
 ```sh
-docker-compose exec admin_clinicmais composer install
+docker exec -it admin_clinicmais composer install
 ```
 
 ```sh
-docker-compose exec admin_clinicmais php artisan key:generate
+docker exec -it admin_clinicmais php artisan key:generate
+```
+
+```sh
+docker exec -it admin_clinicmais npm install
 ```
 
 5- Rodar as migrações
 
 ```sh
-docker-compose exec admin_clinicmais php artisan migrate
+docker exec -it admin_clinicmais php artisan migrate
 ```
 
 6- Rodar seeders
 
 ```sh
-docker-compose exec admin_clinicmais php artisan db:seed
+docker exec -it admin_clinicmais php artisan db:seed
+```
+
+7- Rodar vite
+
+```sh
+docker exec -it admin_clinicmais npm run dev
 ```
 
 ## Considerações
@@ -64,7 +74,7 @@ docker-compose exec admin_clinicmais php artisan db:seed
 ## Accesso
 
 - Acesse o painel de administração em [http://localhost:8000/admin](http://localhost:8000/admin)
-- Acesse a webapp em [http://localhost:8000](http://localhost)
+- Acesse a webapp em [http://localhost](http://localhost)
 
 Login CMS:
 
